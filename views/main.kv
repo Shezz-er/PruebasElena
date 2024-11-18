@@ -1,0 +1,319 @@
+#:import CustomSpinner widgets.custom_spinner.CustomSpinner
+
+<LoginScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+        
+        TextInput:
+            id: rut_input
+            hint_text: 'RUT'
+            input_filter: 'int'
+        
+        TextInput:
+            id: password_input
+            hint_text: 'Contraseña'
+            password: True
+        
+        Button:
+            text: 'Iniciar sesión'
+            on_press: root.do_login()
+        
+        Label:
+            id: error_label
+            text: ''
+            color: 1, 0, 0, 1  # Rojo para errores
+
+<HomeScreen>:
+    name: 'home_screen'
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 50
+        spacing: 30
+
+        ### BOTÓN DE VOLVER AL INICIO DE SESIÓN ###
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '80dp'
+            Button:
+                text: 'Volver al Inicio de sesión'
+                size_hint_x: None
+                width: '200dp'
+                on_press: app.root.current = 'login'
+
+        ### OPCIONES PRINCIPALES ###
+        Button:
+            text: 'Agregar Producto'
+            on_press: root.manager.current = 'add_product_screen'
+
+        Button:
+            text: 'Ver Productos'
+            on_press: root.manager.current = 'view_product_screen'
+        
+        Button:
+            text: 'Realizar Venta'
+            on_press: root.manager.current = 'sales_screen'
+
+
+<AddProductScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 20  
+
+        ### RETROCEDER ###
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '80dp'
+
+            Button:
+                text: '<-'
+                size_hint_x: None
+                width: '50dp'
+                on_press: app.root.current = 'home'
+
+        ScrollView:
+            GridLayout:
+                cols: 1
+                spacing: 20  # Espaciado entre los campos
+                size_hint_y: None
+                padding: [20, 20, 20, 20]
+                height: self.minimum_height
+
+                # Nombre del producto
+                TextInput:
+                    id: nombre_producto_input
+                    hint_text: 'Nombre del producto'
+                    size_hint_y: None
+                    height: '40dp'
+
+                # Precio
+                TextInput:
+                    id: precio_input
+                    hint_text: 'Precio del producto'
+                    input_filter: 'float'
+                    size_hint_y: None
+                    height: '40dp'
+
+                # Descripción
+                TextInput:
+                    id: desc_producto_input
+                    hint_text: 'Descripción del producto'
+                    multiline: True
+                    size_hint_y: None
+                    height: '80dp'
+
+                # Spinners para Medida, Proveedor, Categoría
+                Spinner:
+                    id: spinner_medida
+                    text: 'Seleccione Medida'
+                    values: []
+                    size_hint_y: None
+                    height: '40dp'
+
+                Spinner:
+                    id: spinner_proveedor
+                    text: 'Seleccione Proveedor'
+                    values: []
+                    size_hint_y: None
+                    height: '40dp'
+
+                CustomSpinner:
+
+                    id: spinner_categoria
+                    text: 'Seleccione Categoría'
+                    values: []
+                    size_hint_y: None
+                    height: '20dp'
+
+                # Costo
+                TextInput:
+                    id: costo_input
+                    hint_text: 'Costo del producto'
+                    input_filter: 'float'
+                    size_hint_y: None
+                    height: '40dp'
+
+                # Stock
+                TextInput:
+                    id: stock_input
+                    hint_text: 'Cantidad de stock'
+                    input_filter: 'int'
+                    size_hint_y: None
+                    height: '40dp'
+
+                # Fecha de vencimiento
+                TextInput:
+                    id: fecha_vencimiento_input
+                    hint_text: 'Fecha de vencimiento (YYYY-MM-DD)'
+                    input_filter: 'datetime'
+                    size_hint_y: None
+                    height: '40dp'
+
+                # File chooser
+                Label:
+                    text: 'Selecciona una imagen del producto:'
+                    size_hint_y: None
+                    height: '40dp'
+
+                FileChooserIconView:
+                    id: file_chooser
+                    size_hint_y: None
+                    height: '200dp'
+
+                # Botón para agregar producto
+                Button:
+                    text: 'Agregar Producto'
+                    size_hint_y: None
+                    height: '50dp'
+                    on_press: root.agregar_producto()
+
+                Label:
+                    id: resultado_label
+                    text: ''
+                    color: 0, 1, 0, 1
+                    size_hint_y: None
+                    height: '40dp'
+
+
+<ViewProductScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        
+        BoxLayout:
+            ToggleButton:
+                text: "Disponibles"
+                group: "filtro"
+                on_press: root.cargar_productos_completos(filtro="Mostrar disponibles")
+            ToggleButton:
+                text: "No Disponibles"
+                group: "filtro"
+                on_press: root.cargar_productos_completos(filtro="Mostrar no disponibles")
+            ToggleButton:
+                text: "Todos"
+                group: "filtro"
+                on_press: root.cargar_productos_completos(filtro="Mostrar todos")
+
+        ### Botón de Retroceder ###
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '80dp'
+
+            Button:
+                text: '<-'
+                size_hint_x: None
+                width: '50dp'
+                on_press: app.root.current = 'home' 
+
+        # ScrollView para permitir desplazamiento
+        ScrollView:
+            size_hint_y: 1  # Ocupa todo el espacio vertical disponible
+            bar_width: 10  # Ancho de la barra de desplazamiento
+
+            GridLayout:
+                id: productos_grid
+                cols: 2
+                spacing: 10
+                size_hint_y: None  # Permite que la altura sea dinámica
+                height: self.minimum_height  # Ajusta la altura del grid al contenido
+
+        Button:
+            text: 'Actualizar'
+            on_press: root.cargar_productos_completos()
+            
+<SalesScreen>:
+    BoxLayout:
+        orientation: 'horizontal'
+        padding: 20
+        spacing: 10
+
+        # Panel de Productos
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_x: 0.4
+            padding: 10
+            spacing: 10
+    
+                
+            ### BARRA DE BÚSQUEDA ###
+            TextInput:
+                id: search_input
+                hint_text: 'Buscar producto...'
+                multiline: False
+                size_hint_y: None
+                height: '40dp'
+                on_text: root.filtrar_productos(self.text)
+                
+            Label:
+                text: 'Productos Disponibles'
+                font_size: 24
+                size_hint_y: None
+                height: 40
+
+            ScrollView:
+                GridLayout:
+                    id: productos_grid
+                    cols: 1
+                    spacing: 10
+                    size_hint_y: None
+                    height: self.minimum_height
+
+        # Panel de Resumen de Compra
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_x: 0.6
+            padding: 10
+            spacing: 10
+
+            Label:
+                text: 'Resumen de Compra'
+                font_size: 24
+                size_hint_y: None
+                height: 40
+
+            ScrollView:
+                GridLayout:
+                    id: resumen_grid
+                    cols: 1
+                    spacing: 10
+                    size_hint_y: None
+                    height: self.minimum_height
+
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                height: 40
+
+                Label:
+                    text: 'Total:'
+                Label:
+                    id: total_label
+                    text: '0'
+
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                height: 40
+
+                Label:
+                    text: 'Pago Cliente:'
+                TextInput:
+                    id: pago_cliente
+                    input_filter: 'float'
+
+            Button:
+                text: 'Calcular Vuelto'
+                on_press: root.calcular_vuelto()
+
+            Label:
+                id: vuelto_label
+                text: ''
+                color: 0, 1, 0, 1
